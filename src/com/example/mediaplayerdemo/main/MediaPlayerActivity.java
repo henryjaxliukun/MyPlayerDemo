@@ -5,6 +5,7 @@ import java.text.DecimalFormat;
 import com.example.mediaplayerdemo.R;
 import com.example.player.ExoMediaPlayer;
 import com.example.player.IMediaPlayer;
+import com.example.player.MyMediaPlayer;
 import com.example.player.VideoPlayerTouchAdapter;
 import com.example.player.customview.LightnessControl;
 import com.example.player.customview.VolumeController;
@@ -12,9 +13,7 @@ import com.example.util.DensityUtil;
 import com.example.util.ToastUtil;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
@@ -93,6 +92,7 @@ public class MediaPlayerActivity extends Activity implements TextureView.Surface
 
 		initWidgets();
 
+//		mPlayer = new MyMediaPlayer();
 		mPlayer = new ExoMediaPlayer();
 		mPlayer.setErrorListener(errorListener);
 		mPlayer.setPlayerPreparedListener(preparedListener);
@@ -272,7 +272,6 @@ public class MediaPlayerActivity extends Activity implements TextureView.Surface
 
 		@Override
 		public void onProgressChanged(int progress) {
-			// TODO Auto-generated method stub
 			if (!mPlayer.isPlayerReady() || isSeekBarTouching) {
 				return;
 			}
@@ -292,10 +291,17 @@ public class MediaPlayerActivity extends Activity implements TextureView.Surface
 		}
 
 		@Override
-		public void onBuffering(boolean isBuffering) {
-			progressBarBuffering.setVisibility(isBuffering ? View.VISIBLE : View.GONE);
+		public void onBuffering(final boolean isBufferring) {
+			if (progressBarBuffering == null || progressBarBuffering.isShown() == isBufferring) {
+				return;
+			}
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					progressBarBuffering.setVisibility(isBufferring ? View.VISIBLE : View.GONE);
+				}
+			});
 		}
-
 	};
 
 	private IMediaPlayer.OnPlayerPreparedListener preparedListener = new IMediaPlayer.OnPlayerPreparedListener() {
@@ -323,9 +329,6 @@ public class MediaPlayerActivity extends Activity implements TextureView.Surface
 				finish();
 				break;
 			case MediaPlayer.MEDIA_ERROR_UNKNOWN:
-				// TODO 有时会持续报错 E/MediaPlayer(10939): error (1,-1099)，也有-1007的情况
-				showOnErrorDialog(what, extra);
-				break;
 			default:
 				// 网络错误之类的，重启播放器
 				ToastUtil.showShortToast("MEDIA_ERROR " + "what=" + what + " extra=" + extra);
@@ -535,27 +538,6 @@ public class MediaPlayerActivity extends Activity implements TextureView.Surface
 		volumeController.show(volume, "音量", max);
 	}
 
-	// 如果播放异常，则提示信息
-	private void showOnErrorDialog(int what, int extra) {
-		AlertDialog dialog = new AlertDialog.Builder(mContext).setCancelable(false)
-				.setMessage("未知错误 " + "what=" + what + " extra=" + extra)
-				.setPositiveButton("重启播放器", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						// 如果播放异常，则快进十秒
-						progressBarBuffering.setVisibility(View.VISIBLE);
-						playPosition += 10 * 1000;
-						mPlayer.releasePlayer();
-						handler.obtainMessage(PlayerHandler.MSG_INIT_PLAYER).sendToTarget();
-					}
-				}).setNegativeButton("退回主界面", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						finish();
-					}
-				}).create();
-		dialog.show();
-	}
 }
 
 class PlayerHandler extends Handler {

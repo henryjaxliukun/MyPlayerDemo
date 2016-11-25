@@ -2,7 +2,9 @@ package com.example.player;
 
 import com.example.player.exo.DemoPlayer;
 import com.example.player.exo.DemoPlayer.Listener;
+import com.example.player.exo.DemoPlayer.RendererBuilder;
 import com.example.player.exo.ExtractorRendererBuilder;
+import com.example.player.exo.UdpExtractorRendererBuilder;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.TrackRenderer;
 
@@ -19,7 +21,7 @@ public class ExoMediaPlayer extends AbsMediaPlayer {
 	private boolean isPlaying;
 	private boolean firstFlag;
 
-	private void resetStatus() {
+	public void resetStatus() {
 		playStatus = ExoPlayer.STATE_IDLE;
 		firstFlag = false;
 	}
@@ -30,7 +32,14 @@ public class ExoMediaPlayer extends AbsMediaPlayer {
 			return false;
 		}
 		resetStatus();
-		ExtractorRendererBuilder builder = new ExtractorRendererBuilder(context, "exoplayer", uri);
+		
+		RendererBuilder builder;
+		if (uri.toString().startsWith("udp://")) {
+			builder = new UdpExtractorRendererBuilder(context,  Uri.parse(uri.toString().substring(6)));
+		}else{
+			builder = new ExtractorRendererBuilder(context, "exoplayer", uri);
+		}
+
 		player = new DemoPlayer(builder);
 		player.prepare();
 		player.setSurface(s);
@@ -38,6 +47,7 @@ public class ExoMediaPlayer extends AbsMediaPlayer {
 		player.setPlayWhenReady(false);
 		return true;
 	}
+
 
 	@Override
 	public void releasePlayer() {
@@ -142,14 +152,14 @@ public class ExoMediaPlayer extends AbsMediaPlayer {
 				case STATE_IDLE:// 1
 					break;
 				case STATE_PREPARING:// 2
-					// TODO 点播时这个状态被跳过了
+					//点播时这个状态被跳过了
 					break;
 				case STATE_READY:// 4
 					if (firstFlag == false) {
 						if (onPlayerPreparedListener != null) {
 							onPlayerPreparedListener.onPrepared();
 						}
-						initProgressChangeListener(onProgressChangeListener);
+						initProgressChangeListener();
 						firstFlag = true;
 					}
 					if (onProgressChangeListener != null) {
@@ -168,6 +178,7 @@ public class ExoMediaPlayer extends AbsMediaPlayer {
 					onErrorListener.onError(0, 0);
 				}
 			}
+
 		});
 	}
 

@@ -12,6 +12,8 @@ public interface IMediaPlayer {
 
 	public void releasePlayer();
 
+	public void resetStatus();
+
 	// video
 
 	public void startPlayer();
