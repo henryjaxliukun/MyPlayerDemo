@@ -50,7 +50,7 @@ public class ExoMediaPlayer extends AbsMediaPlayer {
 
 
 	@Override
-	public void releasePlayer() {
+	public synchronized void releasePlayer() {
 		if (isPlayerNull()) {
 			return;
 		}
@@ -84,7 +84,7 @@ public class ExoMediaPlayer extends AbsMediaPlayer {
 	}
 
 	@Override
-	public int getPlayerPositionMs() {
+	public synchronized int getPlayerPositionMs() {
 		if (isPlayerNull()) {
 			return 0;
 		}
@@ -116,7 +116,7 @@ public class ExoMediaPlayer extends AbsMediaPlayer {
 	}
 
 	@Override
-	public boolean isPlayerPlaying() {
+	public synchronized boolean isPlayerPlaying() {
 		return playStatus == STATE_READY && isPlaying;
 	}
 

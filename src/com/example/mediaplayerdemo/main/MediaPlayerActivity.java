@@ -3,7 +3,6 @@ package com.example.mediaplayerdemo.main;
 import java.text.DecimalFormat;
 
 import com.example.mediaplayerdemo.R;
-import com.example.player.ExoMediaPlayer;
 import com.example.player.IMediaPlayer;
 import com.example.player.MyMediaPlayer;
 import com.example.player.VideoPlayerTouchAdapter;
@@ -92,8 +91,8 @@ public class MediaPlayerActivity extends Activity implements TextureView.Surface
 
 		initWidgets();
 
-//		mPlayer = new MyMediaPlayer();
-		mPlayer = new ExoMediaPlayer();
+		mPlayer = new MyMediaPlayer();
+//		mPlayer = new ExoMediaPlayer();
 		mPlayer.setErrorListener(errorListener);
 		mPlayer.setPlayerPreparedListener(preparedListener);
 
@@ -252,7 +251,7 @@ public class MediaPlayerActivity extends Activity implements TextureView.Surface
 	@Override
 	public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
 		Log.i(TAG, "onSurfaceTextureDestroyed");
-		handler.obtainMessage(PlayerHandler.MSG_DESTROY_PLAYER).sendToTarget();
+		destroyPlayer();
 		return false;
 	}
 
@@ -542,7 +541,6 @@ public class MediaPlayerActivity extends Activity implements TextureView.Surface
 
 class PlayerHandler extends Handler {
 	public static final int MSG_INIT_PLAYER = 1;
-	public static final int MSG_DESTROY_PLAYER = 2;
 	public static final int MSG_HIDE_CONTROLLER = 3;
 
 	private MediaPlayerActivity activity;
@@ -557,10 +555,6 @@ class PlayerHandler extends Handler {
 		case MSG_INIT_PLAYER:
 			removeMessages(MSG_INIT_PLAYER);
 			activity.initPlayer();
-			break;
-		case MSG_DESTROY_PLAYER:
-			removeMessages(MSG_DESTROY_PLAYER);
-			activity.destroyPlayer();
 			break;
 		case MSG_HIDE_CONTROLLER:
 			removeMessages(MSG_HIDE_CONTROLLER);

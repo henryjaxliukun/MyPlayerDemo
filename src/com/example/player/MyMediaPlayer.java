@@ -28,7 +28,7 @@ public class MyMediaPlayer extends AbsMediaPlayer {
 	}
 
 	@Override
-	public void releasePlayer() {
+	public synchronized void releasePlayer() {
 		if (isPlayerNull()) {
 			return;
 		}
@@ -67,7 +67,7 @@ public class MyMediaPlayer extends AbsMediaPlayer {
 	}
 
 	@Override
-	public int getPlayerPositionMs() {
+	public synchronized int getPlayerPositionMs() {
 		if (isPlayerNull()) {
 			return 0;
 		}
@@ -91,7 +91,7 @@ public class MyMediaPlayer extends AbsMediaPlayer {
 	}
 
 	@Override
-	public boolean isPlayerPlaying() {
+	public synchronized boolean isPlayerPlaying() {
 		if (isPlayerNull()) {
 			return false;
 		}
