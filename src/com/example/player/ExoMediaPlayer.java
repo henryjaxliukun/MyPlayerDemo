@@ -57,6 +57,7 @@ public class ExoMediaPlayer extends AbsMediaPlayer {
 		stopPlayer();
 		player.release();
 		player.blockingClearSurface();
+		player = null;
 	}
 
 	@Override
